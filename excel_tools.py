@@ -1,6 +1,7 @@
 import win32com.client
 from pathlib import Path
 
+
 def main():
     '''Testig the module functions'''
     test_file = Path(r'r:\test_data\custperf_ml.xlsb')
@@ -11,6 +12,7 @@ def main():
 class ExcelFile:
     # excel constants
     XLORIENTATIONHIDDEN = 0
+    XLCSVUTF8 = 62
 
     def __init__(self, name):
         self.name = str(name)
@@ -20,6 +22,13 @@ class ExcelFile:
 
     def __repr__(self):
         return f"ExcelFile('{self.name}')"
+
+    def __del__(self):
+        try:
+            self.wb.saved = True
+            self.app.quit()
+        except Exception as e:
+            pass
 
     def ExportPivot(self, sheet_name, filename=None, index=1):
         '''
@@ -35,6 +44,20 @@ class ExcelFile:
         pvt = ws.pivottables(index)
         self._remove_labels(pvt)
         ws_data = self._drill_down(pvt)
+        if not filename:
+            filename = Path(self.name)
+            clean_sheet_name = ws.name.replace(" ", '_').replace('\\', '_')
+            new_name = f'{filename.name}_{clean_sheet_name}'
+            filename = filename.with_name(new_name).with_suffix('.csv')
+        self.ExportWorksheet(ws_data.name, filename)
+
+    def ExportWorksheet(self, sheet_name, filename):
+        path = Path(filename)
+        ws = self.wb.worksheets[sheet_name]
+        if path.exists():
+            path.unlink()
+        if path.suffix.lower() == '.csv':
+            ws.saveas(str(path), self.XLCSVUTF8)
 
     def _remove_labels(self, pvt):
         '''Remove row and column labels from pivot table'''
