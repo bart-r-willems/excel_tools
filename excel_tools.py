@@ -4,9 +4,13 @@ from pathlib import Path
 
 def main():
     '''Testig the module functions'''
-    test_file = Path(r'r:\test_data\custperf_ml.xlsb')
-    xl = ExcelFile(test_file)
-    xl.ExportPivot('ffe-customer')
+    #test_file = Path(r'r:\test_data\custperf_ml.xlsb')
+    #xl = ExcelFile(test_file)
+    #xl.ExportPivot('ffe-customer')
+    for direction in ['Export', 'Export']:
+        filename = Path(f'R:\\test_data\\3Yr Trend {direction}.xlsb')
+        xl = ExcelFile(filename)
+        xl.ExportPivot('PIVOT')
 
 
 class ExcelFile:
